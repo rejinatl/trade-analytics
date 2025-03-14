@@ -14,7 +14,7 @@ public class TradeOrderResource {
     private String[] tradedAccounts;
     private String tradeDate;
     private String instrument;
-    private Long tradeQuantity;
+    private Long totalTradeCount;
     private Long tradeVolume;
     private String uniqueTradedAccountCount;
 

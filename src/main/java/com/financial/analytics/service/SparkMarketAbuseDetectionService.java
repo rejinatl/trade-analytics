@@ -69,7 +69,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
                  .filter(col("message_type").startsWith("TRADE_"))
                  .groupBy("tradeDate", "instrument")
                  .agg(
-                         functions.count("*").alias("tradeQuantity"),
+                         functions.count("*").alias("totalTradeCount"),
                          functions.sum("last_qty").alias("tradeVolume"),
                          functions.collect_set("accountId").alias("tradedAccounts"),
                          functions.countDistinct("account").alias("uniqueTradedAccountCount")
