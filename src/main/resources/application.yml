@@ -1,0 +1,34 @@
+server:
+  port: 8090
+  servlet:
+    context-path: /analytics
+spring:
+  application:
+    name: global-trade-order-analytics
+  datasource:
+    url: jdbc:postgresql://localhost:5432/financial_tracking_analytics
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+    batch-size: 10000
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 20000
+      auto-commit: false
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  #boot:
+  #  jvmArguments: --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+
+data:
+  import:
+    location: C:\\Users\\Rejin\\Documents\\java-projects\\analytics\\data
+  archive:
+    location: C:\\Users\\Rejin\\Documents\\java-projects\\analytics\\archive
+
+
