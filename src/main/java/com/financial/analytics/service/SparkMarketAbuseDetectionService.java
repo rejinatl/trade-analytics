@@ -1,6 +1,7 @@
 package com.financial.analytics.service;
 
 import com.financial.analytics.config.DataSourceConnectionConfig;
+import com.financial.analytics.model.FillRatioResource;
 import com.financial.analytics.model.TotalTradeOrderResource;
 import com.financial.analytics.model.TradeOrderLifeCycle;
 import com.financial.analytics.model.TradeOrderResource;
@@ -8,16 +9,18 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.spark.sql.*;
+import org.apache.spark.sql.expressions.Window;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.apache.spark.sql.expressions.Window;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.when;
+import static org.apache.spark.sql.functions.sum;
+import static org.apache.spark.sql.functions.lit;
+import static org.apache.spark.sql.functions.desc;
 
 @Service
 @Slf4j
@@ -47,7 +50,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
 
      try {
 
-         //sparkSession.conf().set("spark.sql.session.timeZone", sparkTimeZone);
+         sparkSession.conf().set("spark.sql.session.timeZone", sparkTimeZone);
          Dataset<Row> sparkSessionData = sparkSession
                  .read()
                  .format("jdbc")
@@ -76,6 +79,8 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
 
          List<TradeOrderLifeCycle> orderLifeCycleDataSet = getOrderLifeCyclePerCalender(sparkSessionData);
          List<TotalTradeOrderResource> topTradedInstrumentData = getTopTradedInstrumentPerDay(sparkSessionData);
+         List<FillRatioResource> fillRatioDataSet = getAccountFillRatio(sparkSessionData);
+
 
          return filterDataSet.as(Encoders.bean(TradeOrderResource.class)).collectAsList();
 
@@ -100,7 +105,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
                             functions.count(when(col("message_type").equalTo("ENTER"), 1)).alias("orderEntered"),
                             // Count orders cancelled (message_type = CANCEL)
                             functions.count(when(col("message_type").equalTo("CANCEL"), 1)).alias("orderCancelled"),
-                            // Count trades (message_type = STARTS WITH TRADE)
+                            // Count trades (message_type = STARTS WITH TRADE_*)
                             functions.count(when(col("message_type").startsWith("TRADE_"), 1)).alias("orderTraded")
 
                     )
@@ -131,7 +136,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
                             functions.sum("price_last_qty").alias("totalValue")
                     )
                     .withColumn("rank",
-                            functions.row_number().over(Window.partitionBy("tradeDate").orderBy(functions.desc("total_value"))))
+                            functions.row_number().over(Window.partitionBy("tradeDate").orderBy(functions.desc("totalValue"))))
                     .filter(col("rank").leq(5))  // Filter for top 5 instruments
                     .orderBy("tradeDate", "rank");
 
@@ -142,6 +147,36 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
 
         } catch (Exception e) {
             log.error("error during top traded instrument analysis: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    public List<FillRatioResource> getAccountFillRatio(Dataset<Row> sparkSessionData) {
+
+        try {
+
+            Dataset<Row> topFillRatioDataSet = sparkSessionData
+                    .filter(col("message_type").startsWith("TRADE_"))
+                    .groupBy("account")
+                    .agg(
+                            sum("last_qty").alias("totalFilledQty"),
+                            sum("display_qty").alias("totalDisplayedQty")
+                    )
+                    .withColumn(
+                            "fillRatio",
+                            when(col("totalDisplayedQty").notEqual(0),
+                                    col("totalFilledQty").divide(col("totalDisplayedQty")))
+                                    .otherwise(lit(0))
+                    )
+                    .orderBy(desc("fillRatio"));
+
+            List<FillRatioResource> totalFillRatioData = topFillRatioDataSet.as(Encoders.bean(FillRatioResource.class)).collectAsList();
+            log.info("account fill ratio: {}", totalFillRatioData);
+            return Optional.ofNullable(totalFillRatioData).filter(ObjectUtils::isNotEmpty)
+                    .orElse(Collections.emptyList());
+
+        } catch (Exception e) {
+            log.error("error during account fill ratio analysis: {}", e.getMessage());
             return Collections.emptyList();
         }
     }

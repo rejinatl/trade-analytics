@@ -11,11 +11,10 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TotalTradeOrderResource {
+public class FillRatioResource {
 
-    private String tradeDate;
-    private String instrument;
-    private BigDecimal totalValue;
-    private Long rank;
-
+    private String account;
+    private Long totalFilledQty;
+    private Long totalDisplayedQty;
+    private Double fillRatio;
 }
