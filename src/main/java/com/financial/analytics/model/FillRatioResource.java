@@ -13,8 +13,14 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class FillRatioResource {
 
-    private String account;
-    private Long totalFilledQty;
-    private Long totalDisplayedQty;
-    private Double fillRatio;
+    private String tradeDate;
+    private String orderId;
+    private String instrument;
+   // private String account;
+    private Long displayQty;
+    private Long totalOrderTraded;
+    private String fillRatio;
+    //private String messageType;
+
+
 }

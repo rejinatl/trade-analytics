@@ -2,7 +2,7 @@ package com.financial.analytics.service;
 
 import com.financial.analytics.config.DataSourceConnectionConfig;
 import com.financial.analytics.model.FillRatioResource;
-import com.financial.analytics.model.TotalTradeOrderResource;
+import com.financial.analytics.model.TopTradeOrderResource;
 import com.financial.analytics.model.TradeOrderLifeCycle;
 import com.financial.analytics.model.TradeOrderResource;
 import lombok.Getter;
@@ -21,6 +21,9 @@ import static org.apache.spark.sql.functions.when;
 import static org.apache.spark.sql.functions.sum;
 import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.desc;
+import static org.apache.spark.sql.functions.format_number;
+import static org.apache.spark.sql.functions.coalesce;
+import static org.apache.spark.sql.functions.count;
 
 @Service
 @Slf4j
@@ -69,20 +72,23 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
                  .filter(col("message_type").startsWith("TRADE_"))
                  .groupBy("tradeDate", "instrument")
                  .agg(
-                         functions.count("*").alias("totalTradeCount"),
-                         functions.sum("last_qty").alias("tradeVolume"),
-                         functions.collect_set("accountId").alias("tradedAccounts"),
-                         functions.countDistinct("account").alias("uniqueTradedAccountCount")
+                         coalesce(count(when(col("message_type").startsWith("TRADE_"), col("last_qty"))),
+                                 lit(0)).alias("totalTrade"),
+                         coalesce(sum(col("last_qty")), lit(0)).alias("tradeVolume"),
+                         functions.coalesce(functions.countDistinct("account"),
+                                 functions.lit(0)).alias("uniqueTradedAccount")
 
                  )
                  .orderBy("tradeDate","instrument");
 
+         List<TradeOrderResource> tradeOrderResourceList = filterDataSet.as(Encoders.bean(TradeOrderResource.class)).collectAsList();
          List<TradeOrderLifeCycle> orderLifeCycleDataSet = getOrderLifeCyclePerCalender(sparkSessionData);
-         List<TotalTradeOrderResource> topTradedInstrumentData = getTopTradedInstrumentPerDay(sparkSessionData);
+         List<TopTradeOrderResource> topTradedInstrumentData = getTopTradedInstrumentPerDay(sparkSessionData);
          List<FillRatioResource> fillRatioDataSet = getAccountFillRatio(sparkSessionData);
 
+         return Collections.emptyList();
 
-         return filterDataSet.as(Encoders.bean(TradeOrderResource.class)).collectAsList();
+       //  return filterDataSet.as(Encoders.bean(TradeOrderResource.class)).collectAsList();
 
      } catch (Exception e) {
 
@@ -97,22 +103,20 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
 
             Dataset<Row> orderLifeCycleDataSet = sparkSessionData.withColumn("tradeDate",
                             functions.to_date(sparkSessionData.col("msg_datetime"), sparkTimeZone))
-                    .filter(col("message_type").isin("ENTER", "CANCEL")
-                            .or(col("message_type").rlike("^TRADE_")))
-                    .groupBy("tradeDate", "instrument")
+                    .withColumn("orderId", functions.col("order_id"))
+                    .withColumn("instrument", functions.col("instrument"))
+                    .groupBy("orderId", "account", "tradeDate","instrument")
                     .agg(
-                            // Count orders entered (message_type = ENTER)
-                            functions.count(when(col("message_type").equalTo("ENTER"), 1)).alias("orderEntered"),
-                            // Count orders cancelled (message_type = CANCEL)
-                            functions.count(when(col("message_type").equalTo("CANCEL"), 1)).alias("orderCancelled"),
-                            // Count trades (message_type = STARTS WITH TRADE_*)
-                            functions.count(when(col("message_type").startsWith("TRADE_"), 1)).alias("orderTraded")
-
+                            // Sum of orders entered (message_type = ENTER)
+                            coalesce(sum(when(col("message_type").equalTo("ENTER"), col("display_qty"))),lit(0)).alias("totalOrderEntered"),
+                            // Sum of orders traded (message_type = TRADE_*)
+                            coalesce(sum(when(col("message_type").startsWith("TRADE_"), col("last_qty"))),lit(0)).alias("totalOrderTraded"),
+                            // Sum of orders cancelled (message_type = CANCEL)
+                            coalesce(sum(when(col("message_type").equalTo("CANCEL"), col("display_qty"))),lit(0)).alias("totalOrderCancelled")
                     )
-                    .orderBy("tradeDate", "instrument");
+                    .orderBy("tradeDate", "orderId");
 
             List<TradeOrderLifeCycle> tradeOrderLifeCycles = orderLifeCycleDataSet.as(Encoders.bean(TradeOrderLifeCycle.class)).collectAsList();
-            log.info("order life cycle data: {}", tradeOrderLifeCycles);
 
             return Optional.ofNullable(tradeOrderLifeCycles).filter(ObjectUtils::isNotEmpty)
                     .orElse(Collections.emptyList());
@@ -123,25 +127,25 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
         }
     }
 
-    private List<TotalTradeOrderResource> getTopTradedInstrumentPerDay(Dataset<Row> sparkSessionData) {
+    private List<TopTradeOrderResource> getTopTradedInstrumentPerDay(Dataset<Row> sparkSessionData) {
 
         try {
 
             Dataset<Row> topTradedInstrumentDataSet =
                     sparkSessionData.withColumn("price_last_qty", col("price").multiply(col("last_qty")))
                     .withColumn("tradeDate", functions.to_date(col("msg_datetime"), sparkTimeZone))
-                    .filter(col("message_type").startsWith("TRADE_"))
+                    //.filter(col("message_type").startsWith("TRADE_"))
                     .groupBy("tradeDate", "instrument")
                     .agg(
                             functions.sum("price_last_qty").alias("totalValue")
                     )
                     .withColumn("rank",
                             functions.row_number().over(Window.partitionBy("tradeDate").orderBy(functions.desc("totalValue"))))
-                    .filter(col("rank").leq(5))  // Filter for top 5 instruments
+                    .filter(col("rank").leq(5))  // filter for top 5 instruments
                     .orderBy("tradeDate", "rank");
 
-            List<TotalTradeOrderResource> topTradedInstrumentData = topTradedInstrumentDataSet.as(Encoders.bean(TotalTradeOrderResource.class)).collectAsList();
-            log.info("order life cycle data: {}", topTradedInstrumentData);
+            List<TopTradeOrderResource> topTradedInstrumentData = topTradedInstrumentDataSet.as(Encoders.bean(TopTradeOrderResource.class)).collectAsList();
+            log.info("top traded instrument data: {}", topTradedInstrumentData);
             return Optional.ofNullable(topTradedInstrumentData).filter(ObjectUtils::isNotEmpty)
                     .orElse(Collections.emptyList());
 
@@ -156,22 +160,30 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
         try {
 
             Dataset<Row> topFillRatioDataSet = sparkSessionData
-                    .filter(col("message_type").startsWith("TRADE_"))
-                    .groupBy("account")
+                    .withColumn("tradeDate", functions.to_date(col("msg_datetime"), sparkTimeZone))
+                    .withColumn("instrument", col("instrument"))
+                    .withColumn("orderId", col("order_id"))
+                    .groupBy("tradeDate","instrument","orderId")
                     .agg(
-                            sum("last_qty").alias("totalFilledQty"),
-                            sum("display_qty").alias("totalDisplayedQty")
+
+                            functions.coalesce(functions.first("display_qty"), functions.lit(0)).alias("displayQty"),
+                            coalesce(sum(when(col("message_type").startsWith("TRADE_"), col("last_qty"))),lit(0)).alias("totalOrderTraded")
+
                     )
                     .withColumn(
-                            "fillRatio",
-                            when(col("totalDisplayedQty").notEqual(0),
-                                    col("totalFilledQty").divide(col("totalDisplayedQty")))
-                                    .otherwise(lit(0))
-                    )
+                            "fillRatioUnformatted",
+                            when(col("displayQty").notEqual(0),
+                                    col("totalOrderTraded").divide(col("displayQty")).multiply(100))
+                                    .otherwise(lit(0)))
+                    .withColumn("fillRatio",
+                            when(col("fillRatioUnformatted").mod(1).equalTo(0),
+                                    col("fillRatioUnformatted").cast("int").cast("string"))
+                                    .otherwise(format_number(col("fillRatioUnformatted"), 2)))
+                    .filter(col("fillRatio").notEqual("0"))
                     .orderBy(desc("fillRatio"));
 
             List<FillRatioResource> totalFillRatioData = topFillRatioDataSet.as(Encoders.bean(FillRatioResource.class)).collectAsList();
-            log.info("account fill ratio: {}", totalFillRatioData);
+
             return Optional.ofNullable(totalFillRatioData).filter(ObjectUtils::isNotEmpty)
                     .orElse(Collections.emptyList());
 

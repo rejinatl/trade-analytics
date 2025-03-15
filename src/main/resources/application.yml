@@ -22,13 +22,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  #boot:
-  #  jvmArguments: --add-opens java.base/sun.nio.ch=ALL-UNNAMED
 
 data:
   import:
-    location: C:\\Users\\Rejin\\Documents\\java-projects\\analytics\\data
+    location: C:\\Users\\Rejin\\Documents\\analytics\\data
   archive:
-    location: C:\\Users\\Rejin\\Documents\\java-projects\\analytics\\archive
+    location: C:\\Users\\Rejin\\Documents\\analytics\\archive
 
 

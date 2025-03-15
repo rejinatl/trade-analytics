@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 public class TradeOrderLifeCycle {
 
     private String tradeDate;
+    private String account;
+    private String orderId;
     private String instrument;
-    private Long orderEntered;
-    private Long orderCancelled;
-    private Long orderTraded;
+    private Long totalOrderEntered;
+    private Long totalOrderCancelled;
+    private Long totalOrderTraded;
 
 }

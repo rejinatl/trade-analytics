@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TotalTradeOrderResource {
+public class TopTradeOrderResource {
 
     private String tradeDate;
     private String instrument;

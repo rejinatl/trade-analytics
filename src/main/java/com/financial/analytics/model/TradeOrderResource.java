@@ -6,16 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class TradeOrderResource {
 
-    private String[] tradedAccounts;
+    //private String[] tradedAccounts;
     private String tradeDate;
     private String instrument;
-    private Long totalTradeCount;
+    private Long totalTrade;
     private Long tradeVolume;
-    private String uniqueTradedAccountCount;
-
+    private String uniqueTradedAccount;
 }
