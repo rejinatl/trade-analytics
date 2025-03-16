@@ -72,7 +72,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
              List<TopTradeOrderResource> topTradedInstrumentData = getTopTradedInstrumentPerDay(sparkSessionData);
              List<FillRatioResource> fillRatioDataSet = getAccountFillRatio(sparkSessionData);
 
-             return combinedResult(tradeOrderResourceList,topTradedInstrumentData, fillRatioDataSet);
+             return combineResult(tradeOrderResourceList, topTradedInstrumentData, fillRatioDataSet);
 
          } catch (Exception e) {
              log.error("error during market trading data analysis: {}", e.getMessage());
@@ -125,7 +125,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
                     .orderBy("tradeDate", "rank");
 
             List<TopTradeOrderResource> topTradedInstrumentData = topTradedInstrumentDataSet.as(Encoders.bean(TopTradeOrderResource.class)).collectAsList();
-            log.info("top traded instrument data: {}", topTradedInstrumentData);
+
             return Optional.ofNullable(topTradedInstrumentData).filter(ObjectUtils::isNotEmpty)
                     .orElse(Collections.emptyList());
 
@@ -172,7 +172,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
         }
     }
 
-    private List<CombinedResponseResource> combinedResult(List<TradeOrderResource> tradeOrderResourceList,
+    private List<CombinedResponseResource> combineResult(List<TradeOrderResource> tradeOrderResourceList,
                                                    List<TopTradeOrderResource> topTradedInstrumentData,
                                                    List<FillRatioResource> fillRatioDataSet) {
 
