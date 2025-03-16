@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,9 +12,9 @@ import java.math.BigDecimal;
 public class FillRatioResource {
 
     private String tradeDate;
-    private String orderId;
+   // private String orderId;
     private String instrument;
-   // private String account;
+    private String account;
     private Long displayQty;
     private Long totalOrderTraded;
     private String fillRatio;

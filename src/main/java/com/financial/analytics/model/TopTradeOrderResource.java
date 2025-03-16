@@ -15,7 +15,7 @@ public class TopTradeOrderResource {
 
     private String tradeDate;
     private String instrument;
-    private BigDecimal totalValue;
+    private BigDecimal totalTradeAmount;
     private Long rank;
 
 }

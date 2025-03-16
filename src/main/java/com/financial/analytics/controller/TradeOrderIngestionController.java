@@ -5,13 +5,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping(path = "/api")
 @Slf4j
-public class TradeOrderController {
+public class TradeOrderIngestionController {
 
     @Getter
     private SparkCsvDataFileProcessorService sparkCsvDataFileProcessorService;
@@ -22,15 +22,18 @@ public class TradeOrderController {
     }
 
     @GetMapping("/process-and-archive")
-    public String processAndArchive() {
+    public Map<String, String> processAndArchive() {
         try {
 
             sparkCsvDataFileProcessorService.processDataFile();
 
-            return "Processed, saved data to DB, and archived successfully.";
+            return Map.of( "status", "success",
+                            "message", "Processed, saved data to DB, and archived successfully.");
         } catch (Exception e) {
+
            log.error("Error during processing and archiving: {}", e.getMessage());
-            return "Error during processing and archiving.";
+            return Map.of( "status", "failed",
+                    "message", e.getMessage());
         }
     }
 }

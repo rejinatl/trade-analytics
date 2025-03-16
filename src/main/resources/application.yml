@@ -1,7 +1,7 @@
 server:
   port: 8090
   servlet:
-    context-path: /analytics
+    context-path: /global/api
 spring:
   application:
     name: global-trade-order-analytics
@@ -11,18 +11,10 @@ spring:
     password: admin
     driver-class-name: org.postgresql.Driver
     batch-size: 10000
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      max-lifetime: 1800000
-      connection-timeout: 20000
-      auto-commit: false
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
 data:
   import:
     location: C:\\Users\\Rejin\\Documents\\analytics\\data

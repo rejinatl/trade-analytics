@@ -1,22 +1,22 @@
-package com.financial.analytics.model;
+package com.financial.analytics.model.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.financial.analytics.model.FillRatioResource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class TradeOrderResource {
+public class CombinedInstrumentData {
 
-    private String tradeDate;
     private String instrument;
     private Long totalTradedCount;
     private Long totalTradedVolume;
     private String uniqueTradedAccount;
-
     private Long totalOrderEntered;
     private Long totalOrderCancelled;
+    private List<FillRatioResource> fillRatios;
 }

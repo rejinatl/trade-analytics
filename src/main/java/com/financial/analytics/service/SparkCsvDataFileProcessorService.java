@@ -1,5 +1,6 @@
 package com.financial.analytics.service;
 
+import com.financial.analytics.config.DataSourceConnectionConfig;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -27,9 +28,17 @@ public class SparkCsvDataFileProcessorService implements SparkDataFileProcessorS
     @Getter
     private SparkSession sparkSession;
 
+    @Getter
+    private DataSourceConnectionConfig dataSourceConnectionConfig;
+
     @Autowired
     public void setSparkSession(SparkSession sparkSession) {
         this.sparkSession = sparkSession;
+    }
+
+    @Autowired
+    public void setDataSourceConnectionConfig(DataSourceConnectionConfig dataSourceConnectionConfig) {
+        this.dataSourceConnectionConfig = dataSourceConnectionConfig;
     }
 
     @Value("${data.import.location}")
@@ -37,18 +46,6 @@ public class SparkCsvDataFileProcessorService implements SparkDataFileProcessorS
 
     @Value("${data.archive.location}")
     private String archiveLocation;
-
-    @Value("${spring.datasource.url}")
-    private String jdbcUrl;
-
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @Value("${spring.datasource.driver-class-name}")
-    private String driverClassName;
 
     @Override
     public void processDataFile() throws IOException {
@@ -81,7 +78,7 @@ public class SparkCsvDataFileProcessorService implements SparkDataFileProcessorS
         selectedData.repartition(10)
                 .write()
                 .mode("append")
-                .jdbc(jdbcUrl, "trade_order_tracking", connectionProperties);
+                .jdbc(dataSourceConnectionConfig.getUrl(), "trade_order_tracking", connectionProperties);
     }
 
     private List<String> extractAllDataFileFromPath(String basePath) {
@@ -127,12 +124,14 @@ public class SparkCsvDataFileProcessorService implements SparkDataFileProcessorS
                 .withColumnRenamed("msgseqnum", "msg_seq_num")
                 .withColumnRenamed("datetime", "msg_datetime");
     }
+
     private Properties connectonProperties() {
 
         Properties connectionProperties = new Properties();
-        connectionProperties.put("user", username);
-        connectionProperties.put("password", password);
-        connectionProperties.put("driver", driverClassName);
+        connectionProperties.put("user", dataSourceConnectionConfig.getUsername());
+        connectionProperties.put("password", dataSourceConnectionConfig.getPassword());
+        connectionProperties.put("driver", dataSourceConnectionConfig.getDriverClassName());
+
         return connectionProperties;
     }
 }
