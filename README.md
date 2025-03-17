@@ -2,7 +2,7 @@
 This project is created for analyzing market trade and order for each day.
 
 # Description
-The application allow users to ingest their daily trade order data and get insights on the data.
+The application allow companies to ingest their daily trade order data and get insights on the data.
 Through API, application will produce aggregates in JSON format for each date and instrument, such as,
 1. Total trades count per instrument.
 2. Total traded volume per instrument.
