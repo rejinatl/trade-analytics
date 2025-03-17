@@ -30,7 +30,7 @@ import static org.apache.spark.sql.functions.count;
 
 @Service
 @Slf4j
-public class SparkMarketAbuseDetectionService implements SparkDataAnalysisService {
+public class SparkMarketTradeOrderAnalyticService implements SparkDataAnalysisService {
 
     @Getter
     private SparkSession sparkSession;
@@ -57,8 +57,7 @@ public class SparkMarketAbuseDetectionService implements SparkDataAnalysisServic
          try {
 
              sparkSession.conf().set("spark.sql.session.timeZone", sparkTimeZone);
-             String query = String.format("(SELECT id, msg_seq_num, order_id, instrument, account," +
-                     "side, price, display_qty, last_qty, message_type, msg_datetime FROM trade_order_tracking " +
+             String query = String.format("(SELECT id, msg_seq_num, order_id, instrument, account, side, price, display_qty, last_qty, message_type, msg_datetime FROM trade_order_tracking " +
                      "WHERE DATE(msg_datetime) = '%s' ) AS filtered_data", date);
 
              Dataset<Row> sparkSessionData = sparkSession

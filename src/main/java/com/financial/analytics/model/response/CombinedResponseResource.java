@@ -1,7 +1,6 @@
 package com.financial.analytics.model.response;
 
 import com.financial.analytics.model.TopTradeOrderResource;
-import com.financial.analytics.model.TradeOrderResource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

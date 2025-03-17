@@ -1,7 +1,7 @@
 package com.financial.analytics.controller;
 
 import com.financial.analytics.model.response.CombinedResponseResource;
-import com.financial.analytics.service.SparkMarketAbuseDetectionService;
+import com.financial.analytics.service.SparkMarketTradeOrderAnalyticService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,17 +14,17 @@ import java.util.List;
 public class TradeOrderAnalyticsController {
 
     @Getter
-    private SparkMarketAbuseDetectionService sparkMarketAbuseDetectionService;
+    private SparkMarketTradeOrderAnalyticService sparkMarketTradeOrderAnalyticService;
 
     @Autowired
-    public void setSparkMarketAbuseDetectionService(SparkMarketAbuseDetectionService sparkMarketAbuseDetectionService) {
-        this.sparkMarketAbuseDetectionService = sparkMarketAbuseDetectionService;
+    public void setSparkMarketAbuseDetectionService(SparkMarketTradeOrderAnalyticService sparkMarketAbuseDetectionService) {
+        this.sparkMarketTradeOrderAnalyticService = sparkMarketAbuseDetectionService;
     }
 
     @GetMapping("/trades/metrics/{date}")
     public List<CombinedResponseResource> getDailyTradesCountPerInstrument(@PathVariable("date") String date) {
 
-        return sparkMarketAbuseDetectionService.calculateDailyTradesPerInstrument(date);
+        return sparkMarketTradeOrderAnalyticService.calculateDailyTradesPerInstrument(date);
 
     }
 }
