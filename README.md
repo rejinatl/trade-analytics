@@ -76,12 +76,14 @@ in the run configuration of the application.
 --add-opens=java.base/java.io=ALL-UNNAMED
 --add-opens java.base/sun.util.calendar=ALL-UNNAMED
 ```
-The application will start on port 8090 with context path `/global/api`.
+The application will start on port 8090 with context path `/myfin/api`.
 
 ## API Endpoints
 The application provides the following API endpoints:
-1. GET http://localhost:8090/global/api/process-and-archive ( api to process the file and archive the file)
-2. GET http://localhost:8090/global/api/trades/metrics/2018-05-28 ( here date is mandatory and user can edit the date)
+1. GET http://localhost:8090/myfin/api/process-and-archive ( api to process the file and archive the file)
+2. GET http://localhost:8090/myfin/api/trades/metrics/2018-05-28 ( here date is mandatory and user can edit the date)
+
+You can use any REST client (eg. Postman) to test the endpoints.
 
 ## API documentation using Swagger
 

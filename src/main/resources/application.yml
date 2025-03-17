@@ -1,7 +1,7 @@
 server:
   port: 8090
   servlet:
-    context-path: /global/api
+    context-path: /myfin/api
 spring:
   application:
     name: global-trade-order-analytics
