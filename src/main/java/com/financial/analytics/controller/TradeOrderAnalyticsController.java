@@ -21,7 +21,7 @@ public class TradeOrderAnalyticsController {
         this.sparkMarketTradeOrderAnalyticService = sparkMarketTradeOrderAnalyticService;
     }
 
-    @GetMapping("/trades-metrics/{date}")
+    @GetMapping("/trade-metrics/{date}")
     public List<CombinedResponseResource> getDailyTradesCountPerInstrument(@PathVariable("date") String date) {
 
         return sparkMarketTradeOrderAnalyticService.calculateDailyTradesPerInstrument(date);
