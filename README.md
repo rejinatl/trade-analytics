@@ -83,7 +83,7 @@ The application will start on port 8090 with context path `/myfin/api`.
 ## API Endpoints
 The application provides the following API endpoints:
 1. GET http://localhost:8090/myfin/api/process-and-archive ( api to process the file and archive the file)
-2. GET http://localhost:8090/myfin/api/trades/metrics/2018-05-28 ( here date is mandatory and user can edit the date)
+2. GET http://localhost:8090/myfin/api/trades-metrics/2018-05-28 ( here date is mandatory and user can edit the date)
 
 For testing the API, we can use any REST client (eg. Postman).
 
