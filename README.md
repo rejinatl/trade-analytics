@@ -24,16 +24,16 @@ For building and running the application you need:
 - [Maven 3 ](https://maven.apache.org)
 
 
-## Database: `financial_tracking_analytics`
-Create a PostgreSQL database with the name `financial_tracking_analytics`.
+## Database: `financial_analytics`
+Create a PostgreSQL database with the name `financial_analytics`.
 ## Create Tables manually
-For creating the tables, go to the `dbscript` folder inside the project folder and execute the `schema.sql` file against the database `financial_tracking_analytics`
+For creating the tables, go to the `dbscript` folder inside the project folder and execute the `schema.sql` file against the database `financial_analytics`
 
 ## Configure Datasource, JPA, Hibernate
 Under `src/main/resources` folder, open `application.yml` and edit the below database properties with your local database properties.
 
 ```
-spring.datasource.url= url: jdbc:postgresql://localhost:5432/financial_tracking_analytics
+spring.datasource.url= url: jdbc:postgresql://localhost:5432/financial_analytics
 spring.datasource.username= postgres
 spring.datasource.password= admin
 ```

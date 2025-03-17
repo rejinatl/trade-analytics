@@ -6,7 +6,7 @@ spring:
   application:
     name: global-trade-order-analytics
   datasource:
-    url: jdbc:postgresql://localhost:5432/financial_tracking_analytics
+    url: jdbc:postgresql://localhost:5432/financial_analytics
     username: postgres
     password: admin
     driver-class-name: org.postgresql.Driver
