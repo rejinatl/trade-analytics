@@ -47,7 +47,7 @@ data:
   archive:
     location: C:\\Users\\Documents\\analytics\\archive
 ```
-Please edit the location of the csv file and archive folder.
+Please edit the location of the csv file and archive folder with your local folder.
 Application will not process the file if it is not in the specified location.
 
 ## Installation
