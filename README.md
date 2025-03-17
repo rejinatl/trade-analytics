@@ -61,11 +61,13 @@ One way is to execute the `main` method in the `com.financial.analytics.GlobalTr
 
 or
 
-Open your command prompt and run the project by using the command : `mvn clean spring-boot:run -Dspring-boot.run.jvmArguments="--add-exports=java.base/sun.nio.ch=ALL-UNNAMED 
+Open your command prompt and run the project by using the command :
+```
+mvn clean spring-boot:run -Dspring-boot.run.jvmArguments="--add-exports=java.base/sun.nio.ch=ALL-UNNAMED 
 --add-exports=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens java.base/sun.util.calendar=ALL-UNNAMED"
-`
-The below JVM arguments are necessary to run the application because apache spark using some legacy classes 
-for run/processing the data.
+```
+
+The below JVM arguments are necessary to run the application because apache spark 3 using some legacy apis which are not supported in java 17.
 
 If you are using IntelliJ IDEA / Eclipse , before running the application please add the below JVM arguments
 in the run configuration of the application.
@@ -83,7 +85,7 @@ The application provides the following API endpoints:
 1. GET http://localhost:8090/myfin/api/process-and-archive ( api to process the file and archive the file)
 2. GET http://localhost:8090/myfin/api/trades/metrics/2018-05-28 ( here date is mandatory and user can edit the date)
 
-You can use any REST client (eg. Postman) to test the endpoints.
+For testing the API, we can use any REST client (eg. Postman).
 
 ## API documentation using Swagger
 
