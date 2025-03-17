@@ -17,8 +17,8 @@ public class TradeOrderAnalyticsController {
     private SparkMarketTradeOrderAnalyticService sparkMarketTradeOrderAnalyticService;
 
     @Autowired
-    public void setSparkMarketAbuseDetectionService(SparkMarketTradeOrderAnalyticService sparkMarketAbuseDetectionService) {
-        this.sparkMarketTradeOrderAnalyticService = sparkMarketAbuseDetectionService;
+    public void setSparkMarketAbuseDetectionService(SparkMarketTradeOrderAnalyticService sparkMarketTradeOrderAnalyticService) {
+        this.sparkMarketTradeOrderAnalyticService = sparkMarketTradeOrderAnalyticService;
     }
 
     @GetMapping("/trades/metrics/{date}")
