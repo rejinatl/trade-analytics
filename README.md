@@ -67,7 +67,7 @@ mvn clean spring-boot:run -Dspring-boot.run.jvmArguments="--add-exports=java.bas
 --add-exports=java.base/sun.security.action=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens java.base/sun.util.calendar=ALL-UNNAMED"
 ```
 
-The below JVM arguments are necessary to run the application because apache spark 3 using some legacy apis which are not supported in java 17.
+The below JVM arguments are necessary to run the application because apache spark 3 using some apis which are not visible to public under java 17.
 
 If you are using IntelliJ IDEA / Eclipse , before running the application please add the below JVM arguments
 in the run configuration of the application.
